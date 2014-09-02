@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
     server.vm.provider :virtualbox do |v|
       v.name = "drupal"
-      v.customize ["modifyvm", :id, "--memory", "1024"]
+      v.customize ["modifyvm", :id, "--memory", "3024"]
     end
 
     server.vm.network :private_network, ip: "192.168.50.5"

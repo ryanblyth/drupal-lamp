@@ -1,34 +1,36 @@
 {
-  "build_essential": {
-    "compiletime": true
-  },
-  "db": {
-      "driver": "mysql",
-      "client_recipe": "mysql::client",
-      "root": "root",
-      "grant_hosts": [
-        "localhost"
-      ],
-      "users": {
-        "root": "root",
-        "replication": "replication",
-        "debian": "debian"
+  "nfs_exports": {
+    "/assets": {
+      "clients": {
+        "*": {
+          "writeable": true,
+          "sync": false,
+          "options": [
+            "no_subtree_check",
+            "all_squash",
+            "async"
+          ],
+          "anon_user_name": "www-data",
+          "anon_group_name": "www-data"
+        }
       }
+    }
   },
-  "server": {
-      "web_user": "www-data",
-      "web_group": "www-data",
-      "assets": "/srv/assets",
-      "theme_default": "mytheme",
-      "base": "/srv/www"
-  },
-  "php": {
-    "directives": {
-      "memory_limit": "1024M",
-      "upload_max_filesize": "200M",
-      "post_max_size": "210M"
-    },
-    "conf_dir" : "/etc/php5/apache2"
+  "drupal_frontend": {
+    "css_preprocessor": {
+      // Path to file
+      "/srv/www/herc/current/profiles/test/themes/herc_bare":{
+        // Ruby gems needed to compile
+        "gems": [
+          "bundler"
+        ],
+        // Commands to run so install can occur.
+        "commands": [
+          "bundle install && bundle update",
+          "bundle exec compass compile"
+        ]
+      }
+    }
   },
   "drupal": {
       "drush": {
@@ -36,44 +38,63 @@
         "revision": "master"
       },
       "sites": {
-          "example": {
-              "active": true,
-              "deploy": {
-                  "action": "clean",
-                  "releases": 1
+        "herc": {
+            "active": true,
+            "deploy": {
+                "action": ["deploy", "install"],
+                "releases": 1
+            },
+            "drush_make": {
+              "api": 2,
+              "files": {
+                "core": "drupal-org-core.make",
+                "default": "build-herc.make"
               },
-              "drupal": {
-                  "version": 8.0,
-                  "install": {
-                      "install_configure_form.update_status_module": "'array(FALSE,FALSE)'",
-                      "--clean-url": 1
-                  },
-                  "settings": {
-                      "profile": "standard",
-                      "files": "sites/default/files",
-                      "custom": "sites/default/example.settings.php",
-                      "settings": "sites/default/settings.php",
-                      "cookbook": "drupal",
-                      "template": "example.settings.php.erb",
-                      "db_name": "example",
-                      "db_host": "localhost",
-                      "db_prefix": "",
-                      "db_driver": "mysql"
-                  }
-              },
-              "repository": {
-                  "host": "github.com",
-                  "uri": "https://github.com/drupal/drupal.git",
-                  "revision": "8.x"
-              },
-              "web_app": {
-                  "80": {
-                    "server_name": "drupal.local",
-                    "rewrite_engine": "On",
-                    "docroot": "/srv/www/example/current"
-                  }
-              }
-          }
+             "template": true
+            },
+            "drupal": {
+                "version": "7.28",
+                "install": {
+                    "install_configure_form.update_status_module": "'array(FALSE,FALSE)'",
+                    "install_configure_form.date_default_timezone": "'America/Denver'",
+                    "--clean-url": 1,
+                    "--site-name": "'Hercules Industries'"
+                },
+                "settings": {
+                    "profile": "herc",
+                    "files": "sites/default/files",
+                    "cookbook": "drupal",
+                    "settings": {
+                      "default": {
+                        "location": "sites/default/settings.php"
+                      },
+                      "herc": {
+                        "location": "profiles/herc/includes/settings/herc.settings.php"
+                      },
+                      "herc_dev": {
+                        "location": "profiles/herc/includes/settings/herc.dev.settings.php"
+                      }
+                    },
+                    "db_name": "herc",
+                    "db_host": "localhost",
+                    "db_prefix": "",
+                    "db_driver": "mysql",
+                    "db_file": ""
+                }
+            },
+            "repository": {
+                "host": "github.com",
+                "uri": "git@github.com:ryanblyth/herc.git",
+                "revision": "master"
+            },
+            "web_app": {
+                "80": {
+                  "server_name": "herc.local",
+                  "rewrite_engine": "On",
+                  "docroot": "/srv/www/herc/current"
+                }
+            }
+        }
       }
   }
 }

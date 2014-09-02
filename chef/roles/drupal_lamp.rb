@@ -34,4 +34,6 @@ env_run_lists "_default" => [
                 "recipe[drupal::drush]",
                 "recipe[drupal::mysql]",
                 "recipe[drupal]",
+                "recipe[nfs-drupal]",
+                "recipe[drupal-frontend]"
               ]
